@@ -11,6 +11,9 @@ import highlightRoutes from "./routes/highlightRoutes.js";
 import noteRoutes from "./routes/noteRoutes.js";
 import downloadRoutes from "./routes/downloadRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+
+
 
 
 
@@ -49,6 +52,7 @@ app.use("/api/notes", noteRoutes);
 
 app.use("/api/library/book", downloadRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/admin", adminRoutes);
 
 export default app;
 
