@@ -99,20 +99,55 @@ export const getBooks = async (req, res) => {
   }
 };
 
-export const getBook = async (req, res) => {
+export const getBooks = async (req, res) => {
   try {
-    const book = await Book.findById(req.params.id).populate("category", "name");
+    const {
+      category,
+      language,
+      isFree,
+      search,
+      minPrice,
+      maxPrice,
+      page = 1,
+      limit = 12,
+    } = req.query;
 
-    if (!book) {
-      return res.status(404).json({
-        success: false,
-        message: "الكتاب غير موجود",
-      });
+    const filter = { isPublished: true };
+
+    if (category) filter.category = category;
+    if (language) filter.language = language;
+    if (isFree) filter.isFree = isFree === "true";
+
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { author: { $regex: search, $options: "i" } },
+      ];
     }
+
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = Number(minPrice);
+      if (maxPrice) filter.price.$lte = Number(maxPrice);
+    }
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const books = await Book.find(filter)
+      .populate("category", "name")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+
+    const total = await Book.countDocuments(filter);
 
     res.json({
       success: true,
-      book,
+      count: books.length,
+      total,
+      page: Number(page),
+      pages: Math.ceil(total / limit),
+      books,
     });
   } catch (error) {
     res.status(500).json({
