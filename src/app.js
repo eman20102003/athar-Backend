@@ -6,6 +6,11 @@ import bookRoutes from "./routes/bookRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import { stripeWebhook } from "./controllers/paymentController.js";
 import libraryRoutes from "./routes/libraryRoutes.js";
+import bookmarkRoutes from "./routes/bookmarkRoutes.js";
+import highlightRoutes from "./routes/highlightRoutes.js";
+import noteRoutes from "./routes/noteRoutes.js";
+import downloadRoutes from "./routes/downloadRoutes.js";
+
 
 const app = express();
 app.use(cors());
@@ -27,9 +32,24 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+
 app.use("/api/categories", categoryRoutes);
 app.use("/api/books", bookRoutes);
 app.use("/api/payment", paymentRoutes);
+
 app.use("/uploads", express.static("src/uploads"));
 app.use("/api/library", libraryRoutes);
+
+app.use("/api/bookmarks", bookmarkRoutes);
+app.use("/api/highlights", highlightRoutes);
+app.use("/api/notes", noteRoutes);
+
+app.use("/api/library/book", downloadRoutes);
+
+
 export default app;
+
+
+
+
+
