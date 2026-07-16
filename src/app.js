@@ -3,14 +3,21 @@ import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import bookRoutes from "./routes/bookRoutes.js";
-import aiRoutes from "./routes/aiRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
+import { stripeWebhook } from "./controllers/paymentController.js";
+import libraryRoutes from "./routes/libraryRoutes.js";
 
 const app = express();
 app.use(cors());
 
 
-app.use(express.json());
+app.post(
+  "/api/payment/webhook",
+  express.raw({ type: "application/json" }),
+  stripeWebhook
+);
 
+app.use(express.json());
 
 app.get("/", (req, res) => {
   res.json({
@@ -22,12 +29,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/books", bookRoutes);
-app.use("/api/ai", aiRoutes);
-
-
+app.use("/api/payment", paymentRoutes);
 app.use("/uploads", express.static("src/uploads"));
-
+app.use("/api/library", libraryRoutes);
 export default app;
-
-
-
