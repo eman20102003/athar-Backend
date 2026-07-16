@@ -10,6 +10,8 @@ from "../controllers/authController.js";
 
 
 import protect from "../middleware/authMiddleware.js";
+import { registerValidator, loginValidator, updateProfileValidator } from "../validators/authValidator.js";
+import handleValidation from "../validators/handleValidation.js";
 
 
 const router = express.Router();
@@ -20,12 +22,17 @@ const router = express.Router();
 
 router.post(
     "/register",
+    registerValidator, 
+    handleValidation,
     register
+    
 );
 
 
 router.post(
     "/login",
+    loginValidator,
+     handleValidation,
     login
 );
 
@@ -36,6 +43,8 @@ router.post(
 router.get(
     "/profile",
     protect,
+    updateProfileValidator,
+    handleValidation, 
     getProfile
 );
 
@@ -44,6 +53,8 @@ router.get(
 router.put(
     "/profile",
     protect,
+    updateProfileValidator,
+    handleValidation, 
     updateProfile
 );
 
