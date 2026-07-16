@@ -43,8 +43,6 @@ router.post(
 router.get(
     "/profile",
     protect,
-    updateProfileValidator,
-    handleValidation, 
     getProfile
 );
 
