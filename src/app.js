@@ -12,6 +12,7 @@ import noteRoutes from "./routes/noteRoutes.js";
 import downloadRoutes from "./routes/downloadRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
 
 
@@ -45,6 +46,7 @@ app.use("/api/payment", paymentRoutes);
 
 app.use("/uploads", express.static("src/uploads"));
 app.use("/api/library", libraryRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.use("/api/bookmarks", bookmarkRoutes);
 app.use("/api/highlights", highlightRoutes);
