@@ -121,6 +121,11 @@ export const updateReadingProgress = async (req, res) => {
       Math.round((currentPage / book.pages) * 100)
     );
 
+    const alreadyStarted = await ReadingProgress.findOne({ user: req.user._id, book: bookId });
+    if (!alreadyStarted) {
+      await Book.findByIdAndUpdate(bookId, { $inc: { readsCount: 1 } });
+      }
+
     const progress = await ReadingProgress.findOneAndUpdate(
       { user: req.user._id, book: bookId },
       {

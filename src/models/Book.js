@@ -66,6 +66,15 @@ const bookSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+   isFeatured: {
+     type: Boolean,
+     default: false,
+    },
+
+   readsCount: {
+    type: Number,
+    default: 0,
+  },
   },
   {
     timestamps: true,

@@ -58,22 +58,14 @@ export const createBook = async (req, res) => {
 
 export const getBooks = async (req, res) => {
   try {
-    const {
-      category,
-      language,
-      isFree,
-      search,
-      minPrice,
-      maxPrice,
-      page = 1,
-      limit = 12,
-    } = req.query;
+    const { category, language, isFree, isFeatured, search, minPrice, maxPrice, sort, page = 1, limit = 12 } = req.query;
 
     const filter = { isPublished: true };
 
     if (category) filter.category = category;
     if (language) filter.language = language;
     if (isFree) filter.isFree = isFree === "true";
+    if (isFeatured) filter.isFeatured = isFeatured === "true";
 
     if (search) {
       filter.$or = [
@@ -88,11 +80,18 @@ export const getBooks = async (req, res) => {
       if (maxPrice) filter.price.$lte = Number(maxPrice);
     }
 
+    const sortOptions = {
+      newest: { createdAt: -1 },
+      rating: { rating: -1 },
+      reads: { readsCount: -1 },
+    };
+    const sortBy = sortOptions[sort] || sortOptions.newest;
+
     const skip = (Number(page) - 1) * Number(limit);
 
     const books = await Book.find(filter)
       .populate("category", "name")
-      .sort({ createdAt: -1 })
+      .sort(sortBy)
       .skip(skip)
       .limit(Number(limit));
 
@@ -107,13 +106,9 @@ export const getBooks = async (req, res) => {
       books,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
-
 export const getBook = async (req, res) => {
   try {
     const book = await Book.findById(req.params.id).populate("category", "name");
@@ -148,7 +143,7 @@ export const updateBook = async (req, res) => {
       });
     }
 
-    const fields = ["title", "author", "description", "price", "category", "language", "pages", "isFree", "isPublished"];
+    const fields = ["title", "author", "description", "price", "category", "language", "pages", "isFree", "isPublished", "isFeatured"];
 
     fields.forEach((field) => {
       if (req.body[field] !== undefined) {
