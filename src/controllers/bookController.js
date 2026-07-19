@@ -27,8 +27,8 @@ export const createBook = async (req, res) => {
       });
     }
 
-    const coverImage = req.files.cover[0].path;
-    const pdfFile = req.files.pdf[0].path;
+const coverImage = req.files.cover[0].path.replace(/\\/g, "/");
+const pdfFile = req.files.pdf[0].path.replace(/\\/g, "/");
 
     const book = await Book.create({
       title,
@@ -152,12 +152,11 @@ export const updateBook = async (req, res) => {
     });
 
     if (req.files?.cover) {
-      book.coverImage = req.files.cover[0].path;
-    }
-
-    if (req.files?.pdf) {
-      book.pdfFile = req.files.pdf[0].path;
-    }
+  book.coverImage = req.files.cover[0].path.replace(/\\/g, "/");
+}
+if (req.files?.pdf) {
+  book.pdfFile = req.files.pdf[0].path.replace(/\\/g, "/");
+}
 
     await book.save();
 
