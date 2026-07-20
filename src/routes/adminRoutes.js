@@ -6,6 +6,8 @@ import {
   deleteUser,
   getAllOrders,
   deleteReviewAsAdmin,
+  createUserByAdmin,
+  getAllReviews ,
 } from "../controllers/adminController.js";
 import protect from "../middleware/authMiddleware.js";
 import adminOnly from "../middleware/adminMiddleware.js";
@@ -24,5 +26,7 @@ router.delete("/users/:id", deleteUser);
 router.get("/orders", getAllOrders);
 
 router.delete("/reviews/:id", deleteReviewAsAdmin);
+router.post("/users", createUserByAdmin);
+router.get("/reviews", getAllReviews);
 
 export default router;

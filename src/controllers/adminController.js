@@ -3,8 +3,9 @@ import Book from "../models/Book.js";
 import Order from "../models/Order.js";
 import Category from "../models/Category.js";
 import Review from "../models/Review.js";
+import bcrypt from "bcryptjs";
 
-// أرقام سريعة بس (بدون رسوم بيانية) للكروت اللي فوق الداشبورد
+
 export const getDashboardSummary = async (req, res) => {
   try {
     const [usersCount, booksCount, ordersCount, categoriesCount] = await Promise.all([
@@ -39,7 +40,7 @@ export const getDashboardSummary = async (req, res) => {
   }
 };
 
-// ---------- Users Management ----------
+
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -213,5 +214,64 @@ export const deleteReviewAsAdmin = async (req, res) => {
       success: false,
       message: error.message,
     });
+  }
+};
+
+
+
+export const createUserByAdmin = async (req, res) => {
+  try {
+    const { name, email, password, role } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ success: false, message: "جميع الحقول مطلوبة" });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: "البريد الإلكتروني مستخدم بالفعل" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: role === "admin" ? "admin" : "user",
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "تم إنشاء المستخدم بنجاح",
+      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getAllReviews = async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const reviews = await Review.find()
+      .populate("user", "name email")
+      .populate("book", "title")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+
+    const total = await Review.countDocuments();
+
+    res.json({
+      success: true,
+      count: reviews.length,
+      total,
+      reviews,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };

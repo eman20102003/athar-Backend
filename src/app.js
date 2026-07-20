@@ -44,7 +44,10 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/books", bookRoutes);
 app.use("/api/payment", paymentRoutes);
 
-app.use("/uploads", express.static("src/uploads"));
+app.use("/uploads", (req, res, next) => {
+  res.set("Cross-Origin-Resource-Policy", "cross-origin");
+  next();
+}, express.static("src/uploads"));
 app.use("/api/library", libraryRoutes);
 app.use("/api/ai", aiRoutes);
 
