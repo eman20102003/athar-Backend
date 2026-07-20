@@ -1,34 +1,22 @@
 import Book from "../models/Book.js";
 
+import uploadToCloudinary from "../utils/uploadToCloudinary.js"; 
+
 export const createBook = async (req, res) => {
   try {
-    const {
-      title,
-      author,
-      description,
-      price,
-      category,
-      language,
-      pages,
-      isFree,
-    } = req.body;
+    const { title, author, description, price, category, language, pages, isFree, isFeatured } = req.body;
 
     if (!title || !author || !description || !category || !pages) {
-      return res.status(400).json({
-        success: false,
-        message: "جميع الحقول المطلوبة يجب تعبئتها",
-      });
+      return res.status(400).json({ success: false, message: "جميع الحقول المطلوبة يجب تعبئتها" });
     }
 
     if (!req.files || !req.files.cover || !req.files.pdf) {
-      return res.status(400).json({
-        success: false,
-        message: "يجب رفع صورة الغلاف وملف الكتاب",
-      });
+      return res.status(400).json({ success: false, message: "يجب رفع صورة الغلاف وملف الكتاب" });
     }
 
-const coverImage = req.files.cover[0].path.replace(/\\/g, "/");
-const pdfFile = req.files.pdf[0].path.replace(/\\/g, "/");
+    
+    const coverResult = await uploadToCloudinary(req.files.cover[0].buffer, "covers", "image");
+    const pdfResult = await uploadToCloudinary(req.files.pdf[0].buffer, "books", "raw");
 
     const book = await Book.create({
       title,
@@ -38,24 +26,17 @@ const pdfFile = req.files.pdf[0].path.replace(/\\/g, "/");
       category,
       language,
       pages,
-      coverImage,
-      pdfFile,
+      coverImage: coverResult.secure_url, 
+      pdfFile: pdfResult.secure_url,       
       isFree: isFree === "true" || isFree === true,
+      isFeatured: isFeatured === "true" || isFeatured === true,
     });
 
-    res.status(201).json({
-      success: true,
-      message: "تم إضافة الكتاب بنجاح",
-      book,
-    });
+    res.status(201).json({ success: true, message: "تم إضافة الكتاب بنجاح", book });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
-
 export const getBooks = async (req, res) => {
   try {
     const { category, language, isFree, isFeatured, search, minPrice, maxPrice, sort, page = 1, limit = 12 } = req.query;
@@ -135,41 +116,29 @@ export const getBook = async (req, res) => {
 export const updateBook = async (req, res) => {
   try {
     const book = await Book.findById(req.params.id);
-
     if (!book) {
-      return res.status(404).json({
-        success: false,
-        message: "الكتاب غير موجود",
-      });
+      return res.status(404).json({ success: false, message: "الكتاب غير موجود" });
     }
 
     const fields = ["title", "author", "description", "price", "category", "language", "pages", "isFree", "isPublished", "isFeatured"];
-
     fields.forEach((field) => {
-      if (req.body[field] !== undefined) {
-        book[field] = req.body[field];
-      }
+      if (req.body[field] !== undefined) book[field] = req.body[field];
     });
 
     if (req.files?.cover) {
-  book.coverImage = req.files.cover[0].path.replace(/\\/g, "/");
-}
-if (req.files?.pdf) {
-  book.pdfFile = req.files.pdf[0].path.replace(/\\/g, "/");
-}
+      const coverResult = await uploadToCloudinary(req.files.cover[0].buffer, "covers", "image");
+      book.coverImage = coverResult.secure_url;
+    }
+
+    if (req.files?.pdf) {
+      const pdfResult = await uploadToCloudinary(req.files.pdf[0].buffer, "books", "raw");
+      book.pdfFile = pdfResult.secure_url;
+    }
 
     await book.save();
-
-    res.json({
-      success: true,
-      message: "تم تحديث الكتاب",
-      book,
-    });
+    res.json({ success: true, message: "تم تحديث الكتاب", book });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 

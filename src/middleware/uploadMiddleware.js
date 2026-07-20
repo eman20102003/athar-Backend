@@ -1,7 +1,7 @@
 import multer from "multer";
 import path from "path";
 
-const storage = multer.diskStorage({
+/*const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     if (file.fieldname === "cover") {
       cb(null, "src/uploads/covers");
@@ -17,7 +17,10 @@ const storage = multer.diskStorage({
       Date.now() + "-" + Math.round(Math.random() * 1e9) + path.extname(file.originalname);
     cb(null, uniqueName);
   },
-});
+});*/
+
+
+const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
   if (file.fieldname === "cover") {

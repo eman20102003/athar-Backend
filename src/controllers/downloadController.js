@@ -1,6 +1,6 @@
 import path from "path";
 
-export const downloadBook = async (req, res) => {
+/*export const downloadBook = async (req, res) => {
   try {
     
     const filePath = path.resolve(req.book.pdfFile);
@@ -31,5 +31,21 @@ export const streamBookPdf = async (req, res) => {
       success: false,
       message: error.message,
     });
+  }
+};*/
+
+export const downloadBook = async (req, res) => {
+  try {
+    res.redirect(req.book.pdfFile); // req.book جاية من checkOwnership middleware
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const streamBookPdf = async (req, res) => {
+  try {
+    res.redirect(req.book.pdfFile);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
