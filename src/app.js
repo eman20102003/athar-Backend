@@ -59,6 +59,18 @@ app.use("/api/library/book", downloadRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/admin", adminRoutes);
 
+
+app.use((err, req, res, next) => {
+  console.error("Global error handler:", err.message);
+
+  if (!res.headersSent) {
+    res.status(500).json({
+      success: false,
+      message: "حدث خطأ أثناء معالجة الطلب، حاولي مرة أخرى",
+    });
+  }
+});
+
 export default app;
 
 

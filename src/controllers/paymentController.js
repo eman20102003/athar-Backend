@@ -177,3 +177,37 @@ export const getOrderStatus = async (req, res) => {
     });
   }
 };
+
+export const confirmPayment = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ success: false, message: "الطلب غير موجود" });
+    }
+
+    if (order.status === "paid") {
+      return res.json({ success: true, order });
+    }
+
+  
+    const paymentIntent = await stripe.paymentIntents.retrieve(order.stripePaymentIntentId);
+
+    if (paymentIntent.status === "succeeded") {
+      order.status = "paid";
+      await order.save();
+
+      await User.findByIdAndUpdate(order.user, {
+        $addToSet: { purchasedBooks: order.book },
+      });
+    } else if (paymentIntent.status === "canceled" || paymentIntent.status === "requires_payment_method") {
+      order.status = "failed";
+      await order.save();
+    }
+
+    res.json({ success: true, order });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
