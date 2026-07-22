@@ -5,15 +5,13 @@ import {
   updateUserRole,
   deleteUser,
   getAllOrders,
-  updateOrderStatus,   
-  deleteOrder, 
   deleteReviewAsAdmin,
   createUserByAdmin,
   getAllReviews ,
 } from "../controllers/adminController.js";
 import protect from "../middleware/authMiddleware.js";
 import adminOnly from "../middleware/adminMiddleware.js";
-
+import { updateOrderStatus, deleteOrder } from "../controllers/paymentController.js";
 
 const router = express.Router();
 
