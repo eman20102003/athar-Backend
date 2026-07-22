@@ -61,6 +61,7 @@ ${currentPage ? `القارئ حاليًا في الصفحة رقم ${currentPag
       suggestions,
     });
   } catch (error) {
+    console.error("AI chat error:", error); 
     res.status(500).json({
       success: false,
       message: error.message,

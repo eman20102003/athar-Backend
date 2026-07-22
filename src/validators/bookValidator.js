@@ -11,8 +11,8 @@ export const createBookValidator = [
     .withMessage("الوصف يجب أن يكون 10 أحرف على الأقل"),
 
   body("price")
-    .optional()
-    .isFloat({ min: 0 })
+  .optional({ checkFalsy: true })
+  .isFloat({ min: 0 })
     .withMessage("السعر يجب أن يكون رقمًا موجبًا"),
 
   body("category").notEmpty().withMessage("التصنيف مطلوب").isMongoId().withMessage("معرّف التصنيف غير صحيح"),
@@ -25,11 +25,11 @@ export const createBookValidator = [
 ];
 
 export const updateBookValidator = [
-  body("title").optional().trim().notEmpty().withMessage("عنوان الكتاب لا يمكن أن يكون فارغًا"),
+  body("title").optional({ checkFalsy: true }).trim().notEmpty().withMessage("عنوان الكتاب لا يمكن أن يكون فارغًا"),
 
-  body("price").optional().isFloat({ min: 0 }).withMessage("السعر يجب أن يكون رقمًا موجبًا"),
+  body("price").optional({ checkFalsy: true }).isFloat({ min: 0 }).withMessage("السعر يجب أن يكون رقمًا موجبًا"),
 
-  body("category").optional().isMongoId().withMessage("معرّف التصنيف غير صحيح"),
+ body("category").optional({ checkFalsy: true }).isMongoId().withMessage("معرّف التصنيف غير صحيح"),
 
-  body("pages").optional().isInt({ min: 1 }).withMessage("عدد الصفحات يجب أن يكون رقمًا صحيحًا موجبًا"),
+  body("pages").optional({ checkFalsy: true }).isInt({ min: 1 }).withMessage("عدد الصفحات يجب أن يكون رقمًا صحيحًا موجبًا"),
 ];
