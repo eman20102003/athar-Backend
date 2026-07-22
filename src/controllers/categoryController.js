@@ -97,7 +97,7 @@ export const deleteCategory = async (req, res) => {
     if (booksUsingCategory > 0) {
       return res.status(400).json({
         success: false,
-        message: `لا يمكن حذف هذا التصنيف لأنه مستخدم بـ ${booksUsingCategory} كتاب. غيّري تصنيف هذه الكتب أولًا`,
+        message: `لا يمكن حذف هذا التصنيف لأنه مستخدم بـ ${booksUsingCategory} كتاب. غيّر تصنيف هذه الكتب أولًا`,
       });
     }
 
