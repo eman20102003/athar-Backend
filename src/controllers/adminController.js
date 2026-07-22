@@ -4,6 +4,12 @@ import Order from "../models/Order.js";
 import Category from "../models/Category.js";
 import Review from "../models/Review.js";
 import bcrypt from "bcryptjs";
+import Bookmark from "../models/Bookmark.js";
+import Highlight from "../models/Highlight.js";
+import Note from "../models/Note.js";
+import Favorite from "../models/Favorite.js";
+import ReadingProgress from "../models/ReadingProgress.js";
+import ChatHistory from "../models/ChatHistory.js";
 
 
 export const getDashboardSummary = async (req, res) => {
@@ -127,30 +133,31 @@ export const deleteUser = async (req, res) => {
     const user = await User.findById(req.params.id);
 
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "المستخدم غير موجود",
-      });
+      return res.status(404).json({ success: false, message: "المستخدم غير موجود" });
     }
 
     if (user._id.toString() === req.user._id.toString()) {
-      return res.status(400).json({
-        success: false,
-        message: "لا يمكنك حذف حسابك الخاص",
-      });
+      return res.status(400).json({ success: false, message: "لا يمكنك حذف حسابك الخاص" });
     }
+
+    const userId = user._id;
+
+    await Promise.all([
+      Review.deleteMany({ user: userId }),
+      Bookmark.deleteMany({ user: userId }),
+      Highlight.deleteMany({ user: userId }),
+      Note.deleteMany({ user: userId }),
+      Favorite.deleteMany({ user: userId }),
+      ReadingProgress.deleteMany({ user: userId }),
+      Order.deleteMany({ user: userId }),
+      ChatHistory.deleteMany({ user: userId }),
+    ]);
 
     await user.deleteOne();
 
-    res.json({
-      success: true,
-      message: "تم حذف المستخدم",
-    });
+    res.json({ success: true, message: "تم حذف المستخدم وكل بياناته" });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 

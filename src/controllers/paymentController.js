@@ -58,7 +58,9 @@ export const createPaymentIntent = async (req, res) => {
       amount: book.price,
       stripePaymentIntentId: paymentIntent.id,
       status: "pending",
-    });
+      bookTitleSnapshot: book.title,     
+      bookCoverSnapshot: book.coverImage, 
+});
 
     res.status(201).json({
       success: true,
@@ -102,7 +104,7 @@ export const stripeWebhook = async (req, res) => {
         order.status = "paid";
         await order.save();
 
-        // إضافة الكتاب للمكتبة (unlock download + reader)
+        
         await User.findByIdAndUpdate(order.user, {
           $addToSet: { purchasedBooks: order.book },
         });
@@ -207,6 +209,50 @@ export const confirmPayment = async (req, res) => {
     }
 
     res.json({ success: true, order });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const validStatuses = ["pending", "paid", "failed"];
+
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ success: false, message: "حالة غير صحيحة" });
+    }
+
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: "الطلب غير موجود" });
+    }
+
+    const wasNotPaid = order.status !== "paid";
+    order.status = status;
+    await order.save();
+
+  
+    if (status === "paid" && wasNotPaid) {
+      await User.findByIdAndUpdate(order.user, { $addToSet: { purchasedBooks: order.book } });
+    }
+
+    res.json({ success: true, message: "تم تحديث حالة الطلب", order });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const deleteOrder = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: "الطلب غير موجود" });
+    }
+    await order.deleteOne();
+    res.json({ success: true, message: "تم حذف الطلب" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

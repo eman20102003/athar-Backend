@@ -1,10 +1,10 @@
 import Review from "../models/Review.js";
 import Book from "../models/Book.js";
+import mongoose from "mongoose";
 
-// دالة مساعدة تعيد حساب متوسط التقييم وتحدّثه بالكتاب
 const recalculateBookRating = async (bookId) => {
   const stats = await Review.aggregate([
-    { $match: { book: bookId } },
+    { $match: { book: new mongoose.Types.ObjectId(bookId) } },
     {
       $group: {
         _id: "$book",
@@ -17,7 +17,7 @@ const recalculateBookRating = async (bookId) => {
   const averageRating = stats.length > 0 ? stats[0].averageRating : 0;
 
   await Book.findByIdAndUpdate(bookId, {
-    rating: Math.round(averageRating * 10) / 10, // تقريب لخانة عشرية واحدة
+    rating: Math.round(averageRating * 10) / 10, 
   });
 };
 

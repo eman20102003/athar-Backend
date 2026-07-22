@@ -1,4 +1,10 @@
 import Book from "../models/Book.js";
+import Review from "../models/Review.js";
+import Bookmark from "../models/Bookmark.js";
+import Highlight from "../models/Highlight.js";
+import Note from "../models/Note.js";
+import Favorite from "../models/Favorite.js";
+import ReadingProgress from "../models/ReadingProgress.js";
 
 import uploadToCloudinary from "../utils/uploadToCloudinary.js"; 
 
@@ -147,22 +153,25 @@ export const deleteBook = async (req, res) => {
     const book = await Book.findById(req.params.id);
 
     if (!book) {
-      return res.status(404).json({
-        success: false,
-        message: "الكتاب غير موجود",
-      });
+      return res.status(404).json({ success: false, message: "الكتاب غير موجود" });
     }
+
+    const bookId = book._id;
+
+   
+    await Promise.all([
+      Review.deleteMany({ book: bookId }),
+      Bookmark.deleteMany({ book: bookId }),
+      Highlight.deleteMany({ book: bookId }),
+      Note.deleteMany({ book: bookId }),
+      Favorite.deleteMany({ book: bookId }),
+      ReadingProgress.deleteMany({ book: bookId }),
+    ]);
 
     await book.deleteOne();
 
-    res.json({
-      success: true,
-      message: "تم حذف الكتاب",
-    });
+    res.json({ success: true, message: "تم حذف الكتاب وكل ما يتعلق به" });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };

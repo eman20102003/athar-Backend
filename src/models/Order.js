@@ -35,6 +35,14 @@ const orderSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+
+    bookTitleSnapshot: {
+      type: String,
+     },
+
+    bookCoverSnapshot: {
+     type: String,
+    },
   },
   {
     timestamps: true,

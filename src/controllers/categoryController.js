@@ -89,24 +89,21 @@ export const updateCategory = async (req, res) => {
 export const deleteCategory = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
-
     if (!category) {
-      return res.status(404).json({
+      return res.status(404).json({ success: false, message: "التصنيف غير موجود" });
+    }
+
+    const booksUsingCategory = await Book.countDocuments({ category: category._id });
+    if (booksUsingCategory > 0) {
+      return res.status(400).json({
         success: false,
-        message: "التصنيف غير موجود",
+        message: `لا يمكن حذف هذا التصنيف لأنه مستخدم بـ ${booksUsingCategory} كتاب. غيّري تصنيف هذه الكتب أولًا`,
       });
     }
 
     await category.deleteOne();
-
-    res.json({
-      success: true,
-      message: "تم حذف التصنيف",
-    });
+    res.json({ success: true, message: "تم حذف التصنيف" });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
